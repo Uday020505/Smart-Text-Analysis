@@ -1,0 +1,202 @@
+# Text Analytics Tool
+# Simple text analysis program
+# Created by: [Uday Kumar Saroj]
+
+# Function to count words
+def count_words(text):
+    words = text.split()
+    return len(words)
+
+# Function to count sentences
+def count_sentences(text):
+    count = 0
+    for char in text:
+        if char == '.' or char == '!' or char == '?':
+            count = count + 1
+    if count == 0:
+        count = 1
+    return count
+
+# Function to find most common words
+def find_common_words(text):
+    text = text.lower()
+    
+    # Remove punctuation
+    clean_text = ""
+    for char in text:
+        if char.isalpha() or char == ' ':
+            clean_text = clean_text + char
+    
+    words = clean_text.split()
+    
+    # Count words
+    word_count = {}
+    for word in words:
+        if len(word) > 3:
+            if word in word_count:
+                word_count[word] = word_count[word] + 1
+            else:
+                word_count[word] = 1
+    
+    # Get top 10
+    top_words = []
+    for i in range(10):
+        if len(word_count) == 0:
+            break
+        max_word = ""
+        max_count = 0
+        for word in word_count:
+            if word_count[word] > max_count:
+                max_count = word_count[word]
+                max_word = word
+        if max_word:
+            top_words.append([max_word, max_count])
+            del word_count[max_word]
+    
+    return top_words
+
+# Function to analyze sentiment
+def analyze_sentiment(text):
+    positive = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'love', 'best', 'happy', 'perfect']
+    negative = ['bad', 'terrible', 'awful', 'hate', 'worst', 'horrible', 'sad', 'angry']
+    
+    text = text.lower()
+    words = text.split()
+    
+    pos_count = 0
+    neg_count = 0
+    
+    for word in words:
+        clean_word = ""
+        for char in word:
+            if char.isalpha():
+                clean_word = clean_word + char
+        
+        if clean_word in positive:
+            pos_count = pos_count + 1
+        if clean_word in negative:
+            neg_count = neg_count + 1
+    
+    if pos_count > neg_count:
+        sentiment = "Positive"
+    elif neg_count > pos_count:
+        sentiment = "Negative"
+    else:
+        sentiment = "Neutral"
+    
+    return sentiment, pos_count, neg_count
+
+# Function to calculate difficulty
+def calculate_difficulty(text):
+    words = count_words(text)
+    sentences = count_sentences(text)
+    
+    avg = words / sentences
+    
+    if avg < 10:
+        return "Very Easy"
+    elif avg < 15:
+        return "Easy"
+    elif avg < 20:
+        return "Medium"
+    else:
+        return "Difficult"
+
+# Main program
+print("="*50)
+print("  TEXT ANALYTICS TOOL")
+print("="*50)
+print()
+print("Enter your text below.")
+print("Type 'DONE' on a new line when finished:")
+print()
+
+# Get text from user
+lines = []
+while True:
+    line = input()
+    if line == "DONE":
+        break
+    lines.append(line)
+
+text = " ".join(lines)
+
+# Check if empty
+if len(text.strip()) == 0:
+    print("\nError: No text entered!")
+else:
+    # Analyze text
+    print("\n" + "="*50)
+    print("  RESULTS")
+    print("="*50)
+    
+    # Statistics
+    print("\n1. BASIC STATISTICS:")
+    print("-"*50)
+    total_words = count_words(text)
+    total_sentences = count_sentences(text)
+    total_chars = len(text)
+    
+    print("Words:", total_words)
+    print("Sentences:", total_sentences)
+    print("Characters:", total_chars)
+    if total_words > 0:
+        avg = total_chars / total_words
+        print("Average word length:", round(avg, 1))
+    
+    # Top words
+    print("\n2. TOP WORDS:")
+    print("-"*50)
+    top_words = find_common_words(text)
+    if top_words:
+        for i in range(len(top_words)):
+            word = top_words[i][0]
+            count = top_words[i][1]
+            print(str(i+1) + ". " + word + ": " + str(count) + " times")
+    else:
+        print("No words found")
+    
+    # Sentiment
+    print("\n3. SENTIMENT:")
+    print("-"*50)
+    sentiment, pos, neg = analyze_sentiment(text)
+    print("Overall sentiment:", sentiment)
+    print("Positive words:", pos)
+    print("Negative words:", neg)
+    
+    # Difficulty
+    print("\n4. READING LEVEL:")
+    print("-"*50)
+    difficulty = calculate_difficulty(text)
+    print("Difficulty:", difficulty)
+    
+    # Save option
+    print("\n" + "="*50)
+    save = input("\nSave report? (yes/no): ")
+    
+    if save.lower() == "yes" or save.lower() == "y":
+        filename = input("Enter filename: ")
+        filename = filename + ".txt"
+        
+        f = open(filename, 'w')
+        f.write("TEXT ANALYTICS REPORT\n")
+        f.write("="*50 + "\n\n")
+        f.write("STATISTICS:\n")
+        f.write("Words: " + str(total_words) + "\n")
+        f.write("Sentences: " + str(total_sentences) + "\n")
+        f.write("Characters: " + str(total_chars) + "\n\n")
+        f.write("TOP WORDS:\n")
+        for i in range(len(top_words)):
+            word = top_words[i][0]
+            count = top_words[i][1]
+            f.write(str(i+1) + ". " + word + ": " + str(count) + "\n")
+        f.write("\nSENTIMENT: " + sentiment + "\n")
+        f.write("Positive: " + str(pos) + "\n")
+        f.write("Negative: " + str(neg) + "\n")
+        f.write("\nDIFFICULTY: " + difficulty + "\n")
+        f.close()
+        
+        print("\nSaved as '" + filename + "'")
+    
+    print("\nThank you!")
+    print("="*50)
